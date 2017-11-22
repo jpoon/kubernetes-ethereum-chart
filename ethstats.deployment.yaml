@@ -1,21 +1,21 @@
 apiVersion: apps/v1beta2 
 kind: Deployment
 metadata:
-  name: eth-stats-deployment
+  name: ethstats-deployment
   labels:
-    app: eth-stats
+    app: ethstats
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: eth-stats
+      app: ethstats
   template:
     metadata:
       labels:
-        app: eth-stats
+        app: ethstats
     spec:
       containers:
-      - name: eth-stats
+      - name: ethstats
         image: ethereumex/eth-stats-dashboard:latest
         ports:
         - name: http
@@ -26,24 +26,3 @@ spec:
             secretKeyRef:
               name: ethstats-secret
               key: WS_SECRET
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: eth-stats-service
-spec:
-  selector:
-    app: eth-stats
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: http
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ethstats-secret
-type: Opaque
-data:
-  # echo -n "azure\!123" | base64
-  WS_SECRET: YXp1cmUhMTIz

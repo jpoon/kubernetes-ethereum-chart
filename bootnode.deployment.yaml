@@ -57,18 +57,3 @@ spec:
       volumes:
       - name: data
         emptyDir: {}
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: bootnode-service
-spec:
-  selector:
-    app: bootnode
-  clusterIP: None
-  ports:
-  - name: discovery
-    port: 30301
-    protocol: UDP
-  - name: http
-    port: 8080

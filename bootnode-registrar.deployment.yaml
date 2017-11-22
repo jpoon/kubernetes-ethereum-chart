@@ -22,15 +22,3 @@ spec:
           value: bootnode-service.default.svc.cluster.local
         ports:
         - containerPort: 9898
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: bootnode-registrar-service
-spec:
-  selector:
-    app: bootnode-registrar
-  type: ClusterIP
-  ports:
-  - port: 80
-    targetPort: 9898

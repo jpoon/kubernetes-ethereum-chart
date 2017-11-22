@@ -82,12 +82,3 @@ spec:
       - name: config 
         configMap:
           name: geth-config
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: geth-miner-secret
-type: Opaque
-data:
-  # echo -n "very-secure-password" | base64
-  accountsecret: dmVyeS1zZWN1cmUtcGFzc3dvcmQ=
