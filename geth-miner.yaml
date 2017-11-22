@@ -37,7 +37,7 @@ spec:
         - name: data
           mountPath: /root/.ethereum
       initContainers:
-      - name: geth-init-genesis
+      - name: init-genesis
         image: ethereum/client-go:v1.7.2
         args:
         - "init"
@@ -47,16 +47,19 @@ spec:
           mountPath: /root/.ethereum
         - name: genesis
           mountPath: /var/geth
-      - name: geth-init-account
+      - name: create-account
         image: ethereum/client-go:v1.7.2
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "printf 'password\npassword\n' | geth account new"
+        - "printf '$(ACCOUNT_PASSWORD)\n$(ACCOUNT_PASSWORD)\n' | geth account new"
+        env:
+        - name: ACCOUNT_PASSWORD
+          value: password
         volumeMounts:
         - name: data
           mountPath: /root/.ethereum
-      - name: geth-init-bootnodes
+      - name: get-bootnodes
         image: ethereum/client-go:v1.7.2
         command: ["/bin/sh"]
         args:
