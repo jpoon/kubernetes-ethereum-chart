@@ -1,0 +1,70 @@
+apiVersion: apps/v1beta2 
+kind: Deployment
+metadata:
+  name: geth-tx-deployment
+  labels:
+    app: geth-tx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: geth-tx
+  template:
+    metadata:
+      labels:
+        app: geth-tx
+    spec:
+      containers:
+      - name: geth-tx
+        image: ethereum/client-go:v1.7.2
+        args:
+        - "--bootnodes=enode://c7f99cd7386d55d85c9d9e772dacbb663a1dc6ac00a3d09a98f26ae12ebdab5c2e889a3488921608e59eda8ce77409f53072091595810efec9d68c7b15313fcd@10.244.3.9:30301"
+        - "--datadir=/etc/geth"
+        - "--rpc"
+        - "--rpcapi=eth,net,web3"
+        - "--rpccorsdomain='*'"
+        - "--ws"
+        - "--networkid=98052"
+        - "--verbosity=10"
+        - "--ethstats=$(MY_POD_NAME):$(WS_SECRET)@eth-stats-service.default"
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: WS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ethstats-secret
+              key: WS_SECRET
+        ports:
+        - name: rpc
+          containerPort: 8545
+        - name: ws
+          containerPort: 8546
+        - name: discovery-udp
+          containerPort: 30303
+          protocol: UDP
+        - name: discovery-tcp
+          containerPort: 30303
+        volumeMounts:
+        - name: data
+          mountPath: /etc/geth
+      initContainers:
+      - name: geth-init-genesis
+        image: ethereum/client-go:v1.7.2
+        args:
+        - "init"
+        - "--datadir=/etc/geth"
+        - "/var/geth/genesis.json"
+        volumeMounts:
+        - name: data
+          mountPath: /etc/geth
+        - name: genesis
+          mountPath: /var/geth
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: genesis
+        secret:
+          secretName: genesis-file
