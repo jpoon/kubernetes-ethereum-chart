@@ -5,7 +5,7 @@ metadata:
   labels:
     app: geth-miner
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: geth-miner
@@ -20,13 +20,18 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=98052 --ethstats=$HOSTNAME:$(WS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=$(NETWORK_ID) --ethstats=$HOSTNAME:$(ETHSTATS_SECRET)@eth-stats-service.default"
         env:
-        - name: WS_SECRET
+        - name: ETHSTATS_SECRET
           valueFrom:
             secretKeyRef:
               name: ethstats-secret
               key: WS_SECRET
+        - name: NETWORK_ID
+          valueFrom:
+            configMapKeyRef:
+              name: geth-config
+              key: networkid
         ports:
         - name: discovery-udp
           containerPort: 30303
@@ -45,17 +50,20 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /root/.ethereum
-        - name: genesis
+        - name: config
           mountPath: /var/geth
       - name: create-account
         image: ethereum/client-go:v1.7.2
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "printf '$(ACCOUNT_PASSWORD)\n$(ACCOUNT_PASSWORD)\n' | geth account new"
+        - "printf '$(ACCOUNT_SECRET)\n$(ACCOUNT_SECRET)\n' | geth account new"
         env:
-        - name: ACCOUNT_PASSWORD
-          value: password
+        - name: ACCOUNT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: geth-miner-secret
+              key: accountsecret
         volumeMounts:
         - name: data
           mountPath: /root/.ethereum
@@ -71,6 +79,15 @@ spec:
       volumes:
       - name: data
         emptyDir: {}
-      - name: genesis
-        secret:
-          secretName: genesis-file
+      - name: config 
+        configMap:
+          name: geth-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: geth-miner-secret
+type: Opaque
+data:
+  # echo -n "very-secure-password" | base64
+  accountsecret: dmVyeS1zZWN1cmUtcGFzc3dvcmQ=

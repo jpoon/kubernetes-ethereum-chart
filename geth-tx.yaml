@@ -20,13 +20,18 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=98052 --ethstats=$(HOSTNAME):$(WS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=$(NETWORK_ID) --ethstats=$(HOSTNAME):$(ETHSTATS_SECRET)@eth-stats-service.default"
         env:
-        - name: WS_SECRET
+        - name: ETHSTATS_SECRET
           valueFrom:
             secretKeyRef:
               name: ethstats-secret
               key: WS_SECRET
+        - name: NETWORK_ID
+          valueFrom:
+            configMapKeyRef:
+              name: geth-config
+              key: networkid
         ports:
         - name: rpc
           containerPort: 8545
@@ -50,7 +55,7 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /root/.ethereum
-        - name: genesis
+        - name: config
           mountPath: /var/geth
       - name: get-bootnodes
         image: ethereum/client-go:v1.7.2
@@ -64,6 +69,6 @@ spec:
       volumes:
       - name: data
         emptyDir: {}
-      - name: genesis
-        secret:
-          secretName: genesis-file
+      - name: config 
+        configMap:
+          name: geth-config

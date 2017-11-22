@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geth-config
+data:
+  networkid: "98052"
+  genesis.json: |-
+    {
+        "config": {
+            "chainId": 98052,
+            "homesteadBlock": 0,
+            "eip150Block": 0,
+            "eip155Block": 0,
+            "eip158Block": 0
+        },
+        "difficulty": "0x20000",
+        "gasLimit": "0x493E00",
+        "alloc": {
+            "da1e55471ded03adadee63ac658b671277a6c7d1": {
+                "balance": "1000000000000000000000000"
+            }
+        }
+    }
