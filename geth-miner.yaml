@@ -1,26 +1,26 @@
 apiVersion: apps/v1beta2 
 kind: Deployment
 metadata:
-  name: geth-tx-deployment
+  name: geth-miner-deployment
   labels:
-    app: geth-tx
+    app: geth-miner
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: geth-tx
+      app: geth-miner
   template:
     metadata:
       labels:
-        app: geth-tx
+        app: geth-miner
     spec:
       containers:
-      - name: geth-tx
+      - name: geth-miner
         image: ethereum/client-go:v1.7.2
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /etc/geth/bootnodes` --datadir=/etc/geth --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=98052 --verbosity=10 --ethstats=$(MY_POD_NAME):$(WS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=98052 --verbosity=10 --ethstats=$(MY_POD_NAME):$(WS_SECRET)@eth-stats-service.default"
         env:
         - name: MY_POD_NAME
           valueFrom:
@@ -32,10 +32,6 @@ spec:
               name: ethstats-secret
               key: WS_SECRET
         ports:
-        - name: rpc
-          containerPort: 8545
-        - name: ws
-          containerPort: 8546
         - name: discovery-udp
           containerPort: 30303
           protocol: UDP
@@ -43,28 +39,36 @@ spec:
           containerPort: 30303
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
       initContainers:
       - name: geth-init-genesis
         image: ethereum/client-go:v1.7.2
         args:
         - "init"
-        - "--datadir=/etc/geth"
         - "/var/geth/genesis.json"
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
         - name: genesis
           mountPath: /var/geth
+      - name: geth-init-account
+        image: ethereum/client-go:v1.7.2
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "printf 'password\npassword\n' | geth account new"
+        volumeMounts:
+        - name: data
+          mountPath: /root/.ethereum
       - name: geth-init-bootnodes
         image: ethereum/client-go:v1.7.2
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "apk add --no-cache curl && curl -v -o /etc/geth/bootnodes bootnode-registrar-service.default"
+        - "apk add --no-cache curl && curl -v -o /root/.ethereum/bootnodes bootnode-registrar-service.default"
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
       volumes:
       - name: data
         emptyDir: {}
