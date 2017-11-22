@@ -20,12 +20,8 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=98052 --verbosity=10 --ethstats=$(MY_POD_NAME):$(WS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=98052 --ethstats=$(HOSTNAME):$(WS_SECRET)@eth-stats-service.default"
         env:
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
         - name: WS_SECRET
           valueFrom:
             secretKeyRef:

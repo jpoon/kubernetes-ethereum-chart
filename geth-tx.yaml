@@ -20,12 +20,8 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /etc/geth/bootnodes` --datadir=/etc/geth --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=98052 --verbosity=10 --ethstats=$(MY_POD_NAME):$(WS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=98052 --ethstats=$(HOSTNAME):$(WS_SECRET)@eth-stats-service.default"
         env:
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
         - name: WS_SECRET
           valueFrom:
             secretKeyRef:
@@ -43,7 +39,7 @@ spec:
           containerPort: 30303
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
       initContainers:
       - name: geth-init-genesis
         image: ethereum/client-go:v1.7.2
@@ -53,7 +49,7 @@ spec:
         - "/var/geth/genesis.json"
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
         - name: genesis
           mountPath: /var/geth
       - name: geth-init-bootnodes
@@ -61,10 +57,10 @@ spec:
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "apk add --no-cache curl && curl -v -o /etc/geth/bootnodes bootnode-registrar-service.default"
+        - "apk add --no-cache curl && curl -v -o /root/.ethereum/bootnodes bootnode-registrar-service.default"
         volumeMounts:
         - name: data
-          mountPath: /etc/geth
+          mountPath: /root/.ethereum
       volumes:
       - name: data
         emptyDir: {}

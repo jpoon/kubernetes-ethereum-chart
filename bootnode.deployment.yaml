@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "bootnode --nodekey=/etc/bootnode/node.key -verbosity 9"
+        - "bootnode --nodekey=/etc/bootnode/node.key"
         volumeMounts:
         - name: data
           mountPath: /etc/bootnode
@@ -28,7 +28,7 @@ spec:
         - name: discovery
           containerPort: 30301
           protocol: UDP
-      - name: bootnode-http
+      - name: bootnode-server
         image: ethereum/client-go:alltools-latest
         command: ["/bin/sh"]
         args:
@@ -48,7 +48,9 @@ spec:
       - name: bootnode-genkey 
         image: ethereum/client-go:alltools-latest
         command: ["/bin/sh"]
-        args: ["-c", "bootnode --genkey=/etc/bootnode/node.key"]
+        args:
+        - "-c"
+        - "bootnode --genkey=/etc/bootnode/node.key"
         volumeMounts:
         - name: data
           mountPath: /etc/bootnode
