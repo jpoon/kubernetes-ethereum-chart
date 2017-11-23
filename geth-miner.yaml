@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --minerthreads=1 --etherbase=0 --networkid=$(NETWORK_ID) --ethstats=$HOSTNAME:$(ETHSTATS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --etherbase=0 --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@ethstats-service.default --verbosity=5"
         env:
         - name: ETHSTATS_SECRET
           valueFrom:

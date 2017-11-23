@@ -5,7 +5,7 @@ metadata:
   labels:
     app: geth-tx
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: geth-tx
@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=$(NETWORK_ID) --ethstats=$(HOSTNAME):$(ETHSTATS_SECRET)@eth-stats-service.default"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@ethstats-service.default --verbosity=5"
         env:
         - name: ETHSTATS_SECRET
           valueFrom:
@@ -50,7 +50,6 @@ spec:
         image: ethereum/client-go:v1.7.2
         args:
         - "init"
-        - "--datadir=/etc/geth"
         - "/var/geth/genesis.json"
         volumeMounts:
         - name: data
