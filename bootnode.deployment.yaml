@@ -5,7 +5,7 @@ metadata:
   labels:
     app: bootnode
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: bootnode
@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "bootnode --nodekey=/etc/bootnode/node.key --netrestrict 10.0.0.0/8 --verbosity=4"
+        - "bootnode --nodekey=/etc/bootnode/node.key --verbosity=4"
         volumeMounts:
         - name: data
           mountPath: /etc/bootnode
