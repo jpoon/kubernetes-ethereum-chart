@@ -1,0 +1,78 @@
+apiVersion: apps/v1beta2 
+kind: Deployment
+metadata:
+  name: {{ template "ethereum.fullname" . }}-geth-tx-deployment
+  labels:
+    app: {{ template "ethereum.name" . }}-geth-tx-deployment
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ template "ethereum.name" . }}-geth-tx
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "ethereum.name" . }}-geth-tx
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: geth-tx
+        image: ethereum/client-go:v1.7.2
+        command: ["/bin/sh"]
+        args: 
+        - "-c"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --rpc --rpcapi=eth,net,web3 --rpccorsdomain='*' --ws --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@{{ template "ethereum.name" . }}-ethstats-service.default --verbosity=5"
+        env:
+        - name: ETHSTATS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "ethereum.fullname" . }}-ethstats-secret
+              key: WS_SECRET
+        - name: NETWORK_ID
+          valueFrom:
+            configMapKeyRef:
+              name: {{ template "ethereum.fullname" . }}-geth-config
+              key: networkid
+        ports:
+        - name: rpc
+          containerPort: 8545
+        - name: ws
+          containerPort: 8546
+        - name: discovery-udp
+          containerPort: 30303
+          protocol: UDP
+        - name: discovery-tcp
+          containerPort: 30303
+        volumeMounts:
+        - name: data
+          mountPath: /root/.ethereum
+      initContainers:
+      - name: init-genesis
+        image: ethereum/client-go:v1.7.2
+        args:
+        - "init"
+        - "/var/geth/genesis.json"
+        volumeMounts:
+        - name: data
+          mountPath: /root/.ethereum
+        - name: config
+          mountPath: /var/geth
+      - name: get-bootnodes
+        image: ethereum/client-go:v1.7.2
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "apk add --no-cache curl && curl -v -o /root/.ethereum/bootnodes {{ template "ethereum.name" . }}-bootnode-registrar-service.default"
+        volumeMounts:
+        - name: data
+          mountPath: /root/.ethereum
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: config 
+        configMap:
+          name: {{ template "ethereum.fullname" . }}-geth-config

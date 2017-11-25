@@ -72,10 +72,25 @@ spec:
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "apk add --no-cache curl && curl -v -o /root/.ethereum/bootnodes bootnode-registrar-service.default"
+        - |-
+          apk add --no-cache curl; 
+          CNT=0;
+          while [ $CNT -le 30 ] 
+          do
+            curl -s bootnode-registrar-service.default | xargs echo -n >> /geth/bootnodes;
+            if [ -s /geth/bootnodes ] 
+            then
+              exit 0;
+            fi;
+
+            echo "no bootnodes found. retrying $CNT..."; 
+            sleep 1 || break;
+            CNT=$((CNT+1));
+          done;
+          exit 1;
         volumeMounts:
         - name: data
-          mountPath: /root/.ethereum
+          mountPath: /geth
       volumes:
       - name: data
         emptyDir: {}
