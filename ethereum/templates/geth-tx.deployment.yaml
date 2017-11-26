@@ -74,11 +74,10 @@ spec:
           echo "retreiving bootnodes from $BOOTNODE_REGISTRAR_SVC"
           while [ $CNT -le 90 ] 
           do
-            curl -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
+            curl -m 5 -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
             if [ -s /geth/bootnodes ] 
             then
               cat /geth/bootnodes;
-              echo "DONE.";
               exit 0;
             fi;
 

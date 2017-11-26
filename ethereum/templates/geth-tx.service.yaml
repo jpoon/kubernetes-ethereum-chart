@@ -11,7 +11,7 @@ spec:
   selector:
     app: {{ template "ethereum.name" . }}-geth-tx
   ports:
-  - port: 8545
-    targetPort: rpc
-  - port: 8546
-    targetPort: ws
+  - name: rpc
+    port: 8545
+  - name: ws
+    port: 8546
