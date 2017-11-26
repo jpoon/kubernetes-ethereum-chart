@@ -25,8 +25,10 @@ spec:
         command: ["/bin/sh"]
         args: 
         - "-c"
-        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --etherbase=0 --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@{{ template "ethereum.name" . }}-ethstats-service.default --verbosity=5"
+        - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --etherbase=0 --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@${ETHSTATS_SVC} --verbosity=5"
         env:
+        - name: ETHSTATS_SVC
+          value: {{ template "ethereum.fullname" . }}-ethstats-service.default
         - name: ETHSTATS_SECRET
           valueFrom:
             secretKeyRef:
@@ -77,12 +79,32 @@ spec:
         command: ["/bin/sh"]
         args:
         - "-c"
-        - |- 
+        - |-
           apk add --no-cache curl; 
-          while [[ ! -s /root/.ethereum/bootnodes ]]; do curl -o /root/.ethereum/bootnodes {{ template "ethereum.name" . }}-bootnode-registrar-service.default; sleep 5 || break; done;
+          CNT=0;
+          echo "retreiving bootnodes from $BOOTNODE_REGISTRAR_SVC"
+          while [ $CNT -le 90 ] 
+          do
+            curl -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
+            if [ -s /geth/bootnodes ] 
+            then
+              cat /geth/bootnodes;
+              echo "DONE.";
+              exit 0;
+            fi;
+
+            echo "no bootnodes found. retrying $CNT..."; 
+            sleep 2 || break;
+            CNT=$((CNT+1));
+          done;
+          echo "WARNING. unable to find bootnodes. continuing but geth may not be able to find any peers.";
+          exit 0;
+        env:
+        - name: BOOTNODE_REGISTRAR_SVC
+          value: {{ template "ethereum.fullname" . }}-bootnode-registrar-service.default
         volumeMounts:
         - name: data
-          mountPath: /root/.ethereum
+          mountPath: /geth
       volumes:
       - name: data
         emptyDir: {}
