@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.bootnode.replicaCount }}
   selector:
     matchLabels:
       app: {{ template "ethereum.name" . }}-bootnode
@@ -21,7 +21,8 @@ spec:
     spec:
       containers:
       - name: bootnode
-        image: ethereum/client-go:alltools-latest
+        image: {{ .Values.bootnode.image.repository }}:{{ .Values.bootnode.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args: 
         - "-c"
@@ -34,7 +35,8 @@ spec:
           containerPort: 30301
           protocol: UDP
       - name: bootnode-server
-        image: ethereum/client-go:alltools-latest
+        image: {{ .Values.bootnode.image.repository }}:{{ .Values.bootnode.image.tag }}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
         command: ["/bin/sh"]
         args:
         - "-c"
@@ -50,8 +52,9 @@ spec:
         ports:
         - containerPort: 8080
       initContainers:
-      - name: genkey 
-        image: ethereum/client-go:alltools-latest
+      - name: genkey
+        image: {{ .Values.bootnode.image.repository }}:{{ .Values.bootnode.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:
         - "-c"

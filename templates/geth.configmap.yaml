@@ -1,13 +1,18 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: geth-config
+  name: {{ template "ethereum.fullname" . }}-geth-config
+  labels:
+    app: {{ template "ethereum.name" . }}-geth-config
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 data:
-  networkid: "98052"
+  networkid: "{{ .Values.geth.networkId }}"
   genesis.json: |-
     {
         "config": {
-            "chainId": 98052,
+            "chainId": {{ .Values.geth.networkId }},
             "homesteadBlock": 0,
             "eip150Block": 0,
             "eip155Block": 0,

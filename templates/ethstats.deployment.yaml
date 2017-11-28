@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.ethstats.replicaCount }}
   selector:
     matchLabels:
       app: {{ template "ethereum.name" . }}-ethstats
@@ -21,7 +21,8 @@ spec:
     spec:
       containers:
       - name: ethstats
-        image: ethereumex/eth-stats-dashboard:latest
+        image: {{ .Values.ethstats.image.repository }}:{{ .Values.ethstats.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         ports:
         - name: http
           containerPort: 3000

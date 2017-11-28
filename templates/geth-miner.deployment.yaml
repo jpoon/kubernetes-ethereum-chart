@@ -1,38 +1,44 @@
 apiVersion: apps/v1beta2 
 kind: Deployment
 metadata:
-  name: geth-miner-deployment
+  name: {{ template "ethereum.fullname" . }}-geth-miner-deployment
   labels:
-    app: geth-miner
+    app: {{ template "ethereum.name" . }}-geth-miner-deployment
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
-  replicas: 3
+  replicas: {{ .Values.gethMiner.replicaCount }}
   selector:
     matchLabels:
-      app: geth-miner
+      app: {{ template "ethereum.name" . }}-geth-miner
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: geth-miner
+        app: {{ template "ethereum.name" . }}-geth-miner
+        release: {{ .Release.Name }}
     spec:
       containers:
       - name: geth-miner
-        image: ethereum/client-go:v1.7.2
+        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args: 
         - "-c"
         - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --etherbase=0 --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@${ETHSTATS_SVC} --verbosity=5"
         env:
         - name: ETHSTATS_SVC
-          value: ethstats-service.default 
+          value: {{ template "ethereum.fullname" . }}-ethstats-service.default
         - name: ETHSTATS_SECRET
           valueFrom:
             secretKeyRef:
-              name: ethstats-secret
+              name: {{ template "ethereum.fullname" . }}-ethstats-secret
               key: WS_SECRET
         - name: NETWORK_ID
           valueFrom:
             configMapKeyRef:
-              name: geth-config
+              name: {{ template "ethereum.fullname" . }}-geth-config
               key: networkid
         ports:
         - name: discovery-udp
@@ -45,7 +51,8 @@ spec:
           mountPath: /root/.ethereum
       initContainers:
       - name: init-genesis
-        image: ethereum/client-go:v1.7.2
+        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         args:
         - "init"
         - "/var/geth/genesis.json"
@@ -55,7 +62,8 @@ spec:
         - name: config
           mountPath: /var/geth
       - name: create-account
-        image: ethereum/client-go:v1.7.2
+        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:
         - "-c"
@@ -64,30 +72,31 @@ spec:
         - name: ACCOUNT_SECRET
           valueFrom:
             secretKeyRef:
-              name: geth-miner-secret
+              name: {{ template "ethereum.fullname" . }}-geth-miner-secret
               key: accountsecret
         volumeMounts:
         - name: data
           mountPath: /root/.ethereum
       - name: get-bootnodes
-        image: ethereum/client-go:v1.7.2
+        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:
         - "-c"
         - |-
           apk add --no-cache curl; 
           CNT=0;
-          while [ $CNT -le 60 ] 
+          echo "retreiving bootnodes from $BOOTNODE_REGISTRAR_SVC"
+          while [ $CNT -le 90 ] 
           do
-            curl -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
+            curl -m 5 -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
             if [ -s /geth/bootnodes ] 
             then
-              echo "DONE.";
               cat /geth/bootnodes;
               exit 0;
             fi;
 
-            echo "no bootnodes found from bootnode-registrar. retrying $CNT..."; 
+            echo "no bootnodes found. retrying $CNT..."; 
             sleep 2 || break;
             CNT=$((CNT+1));
           done;
@@ -95,7 +104,7 @@ spec:
           exit 0;
         env:
         - name: BOOTNODE_REGISTRAR_SVC
-          value: bootnode-registrar-service.default
+          value: {{ template "ethereum.fullname" . }}-bootnode-registrar-service.default
         volumeMounts:
         - name: data
           mountPath: /geth
@@ -104,4 +113,4 @@ spec:
         emptyDir: {}
       - name: config 
         configMap:
-          name: geth-config
+          name: {{ template "ethereum.fullname" . }}-geth-config

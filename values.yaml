@@ -1,0 +1,45 @@
+# Default values for ethereum.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullPolicy: IfNotPresent
+
+bootnode:
+  replicaCount: 2
+  image:
+    repository: ethereum/client-go
+    tag: alltools-release-1.7
+
+bootnodeRegistrar:
+  replicaCount: 1
+  image:
+    repository: jpoon/bootnode-registrar
+    tag: v1.0.0
+
+ethstats:
+  replicaCount: 1
+  image:
+    repository: ethereumex/eth-stats-dashboard
+    tag: latest
+  # echo -n "azure\!123" | base64
+  webSocketSecret: YXp1cmUhMTIz
+  service:
+    type: LoadBalancer
+
+gethMiner:
+  replicaCount: 3
+  image:
+    repository: ethereum/client-go
+    tag: v1.7.2
+  account:
+    # echo -n "very-secure-password" | base64
+    secret: dmVyeS1zZWN1cmUtcGFzc3dvcmQ=
+
+gethTx:
+  replicaCount: 2
+  image:
+    repository: ethereum/client-go
+    tag: v1.7.2
+
+geth:
+  networkId: 98052
