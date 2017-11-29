@@ -10,6 +10,7 @@ metadata:
 spec:
   selector:
     app: {{ template "ethereum.name" . }}-geth-tx
+  type: {{ .Values.geth.tx.service.type }}
   ports:
   - name: rpc
     port: 8545

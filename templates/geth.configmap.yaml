@@ -8,11 +8,11 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  networkid: "{{ .Values.geth.networkId }}"
+  networkid: "{{ .Values.geth.genesis.networkId }}"
   genesis.json: |-
     {
         "config": {
-            "chainId": {{ .Values.geth.networkId }},
+            "chainId": {{ .Values.geth.genesis.networkId }},
             "homesteadBlock": 0,
             "eip150Block": 0,
             "eip155Block": 0,
@@ -21,8 +21,10 @@ data:
         "difficulty": "0x20000",
         "gasLimit": "0x493E00",
         "alloc": {
-            "da1e55471ded03adadee63ac658b671277a6c7d1": {
+            {{- range .Values.geth.genesis.accountsToFund }}
+            {{ . | quote }}: {
                 "balance": "1000000000000000000000000"
             }
+            {{- end }}
         }
     }

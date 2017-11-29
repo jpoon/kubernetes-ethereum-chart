@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.gethMiner.replicaCount }}
+  replicas: {{ .Values.geth.miner.replicaCount }}
   selector:
     matchLabels:
       app: {{ template "ethereum.name" . }}-geth-miner
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: geth-miner
-        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args: 
@@ -51,7 +51,7 @@ spec:
           mountPath: /root/.ethereum
       initContainers:
       - name: init-genesis
-        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         args:
         - "init"
@@ -62,7 +62,7 @@ spec:
         - name: config
           mountPath: /var/geth
       - name: create-account
-        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:
@@ -78,7 +78,7 @@ spec:
         - name: data
           mountPath: /root/.ethereum
       - name: get-bootnodes
-        image: {{ .Values.gethMiner.image.repository }}:{{ .Values.gethMiner.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:

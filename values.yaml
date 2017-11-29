@@ -21,23 +21,25 @@ ethstats:
   image:
     repository: ethereumex/eth-stats-dashboard
     tag: latest
-  webSocketSecret: azure!123
+  webSocketSecret: my-secret-for-connecting-to-ethstats
   service:
     type: LoadBalancer
 
-gethMiner:
-  replicaCount: 3
-  image:
-    repository: ethereum/client-go
-    tag: v1.7.2
-  account:
-    secret: very-secure-password
-
-gethTx:
-  replicaCount: 2
-  image:
-    repository: ethereum/client-go
-    tag: v1.7.2
-
 geth:
-  networkId: 98052
+  image:
+    repository: ethereum/client-go
+    tag: v1.7.2
+  tx:
+    # transaction nodes
+    replicaCount: 2
+    service:
+      type: ClusterIP
+  miner:
+    # miner nodes
+    replicaCount: 3
+    account:
+      secret: my-secret-account-password
+  genesis:
+    networkId: 98052
+    accountsToFund:
+      - da1e55471ded03adadee63ac658b671277a6c7d1

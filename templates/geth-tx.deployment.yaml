@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.gethTx.replicaCount }}
+  replicas: {{ .Values.geth.tx.replicaCount }}
   selector:
     matchLabels:
       app: {{ template "ethereum.name" . }}-geth-tx
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: geth-tx
-        image: {{ .Values.gethTx.image.repository }}:{{ .Values.gethTx.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args: 
@@ -55,7 +55,7 @@ spec:
           mountPath: /root/.ethereum
       initContainers:
       - name: init-genesis
-        image: {{ .Values.gethTx.image.repository }}:{{ .Values.gethTx.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         args:
         - "init"
@@ -66,7 +66,7 @@ spec:
         - name: config
           mountPath: /var/geth
       - name: get-bootnodes
-        image: {{ .Values.gethTx.image.repository }}:{{ .Values.gethTx.image.tag }}
+        image: {{ .Values.geth.image.repository }}:{{ .Values.geth.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["/bin/sh"]
         args:
