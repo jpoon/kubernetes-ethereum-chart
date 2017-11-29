@@ -59,4 +59,3 @@ $ helm install --name ethereum -f values.yaml kubernetes-ethereum-chart
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
-

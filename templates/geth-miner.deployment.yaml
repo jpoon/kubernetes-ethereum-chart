@@ -29,7 +29,7 @@ spec:
         - "geth --bootnodes=`cat /root/.ethereum/bootnodes` --mine --etherbase=0 --networkid=${NETWORK_ID} --ethstats=${HOSTNAME}:${ETHSTATS_SECRET}@${ETHSTATS_SVC} --verbosity=5"
         env:
         - name: ETHSTATS_SVC
-          value: {{ template "ethereum.fullname" . }}-ethstats-service.default
+          value: {{ template "ethereum.fullname" . }}-ethstats-service.{{ .Release.Namespace }}
         - name: ETHSTATS_SECRET
           valueFrom:
             secretKeyRef:
@@ -104,7 +104,7 @@ spec:
           exit 0;
         env:
         - name: BOOTNODE_REGISTRAR_SVC
-          value: {{ template "ethereum.fullname" . }}-bootnode-registrar-service.default
+          value: {{ template "ethereum.fullname" . }}-bootnode-registrar-service.{{ .Release.Namespace }}
         volumeMounts:
         - name: data
           mountPath: /geth

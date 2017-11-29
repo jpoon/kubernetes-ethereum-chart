@@ -21,8 +21,7 @@ ethstats:
   image:
     repository: ethereumex/eth-stats-dashboard
     tag: latest
-  # echo -n "azure\!123" | base64
-  webSocketSecret: YXp1cmUhMTIz
+  webSocketSecret: azure!123
   service:
     type: LoadBalancer
 
@@ -32,8 +31,7 @@ gethMiner:
     repository: ethereum/client-go
     tag: v1.7.2
   account:
-    # echo -n "very-secure-password" | base64
-    secret: dmVyeS1zZWN1cmUtcGFzc3dvcmQ=
+    secret: very-secure-password
 
 gethTx:
   replicaCount: 2

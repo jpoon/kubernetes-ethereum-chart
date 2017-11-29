@@ -1,4 +1,4 @@
-1. Get the application URL by running these commands:
+1. Get the EthStats URL by running these commands:
 {{- if contains "NodePort" .Values.ethstats.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "ethereum.fullname" . }}-ethstats-service)
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")

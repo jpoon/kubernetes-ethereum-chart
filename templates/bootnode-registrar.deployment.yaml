@@ -25,6 +25,6 @@ spec:
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
         - name: BOOTNODE_SERVICE
-          value: {{ template "ethereum.fullname" . }}-bootnode-service.default.svc.cluster.local
+          value: {{ template "ethereum.fullname" . }}-bootnode-service.{{ .Release.Namespace }}.svc.cluster.local
         ports:
         - containerPort: 9898
