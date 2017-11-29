@@ -45,9 +45,7 @@ The command removes all the Kubernetes components associated with the chart and 
 See `values.yaml` for configuration notes. Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-$ helm install --name ethereum \
-  --set geth.networkid=98052 \
-    kubernetes-ethereum-chart
+$ helm install kubernetes-ethereum-chart --name ethereum --set geth.genesis.networkid=98052 
 ```
 
 The above command sets the networkId to 98052
@@ -55,7 +53,7 @@ The above command sets the networkId to 98052
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install --name ethereum -f values.yaml kubernetes-ethereum-chart
+$ helm install kubernetes-ethereum-chart --name ethereum -f values.yaml 
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
