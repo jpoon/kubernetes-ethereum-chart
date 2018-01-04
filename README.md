@@ -1,4 +1,4 @@
-# kubernetes-ethereum-chart
+# ethereum
 
 Private Ethereum Network
 

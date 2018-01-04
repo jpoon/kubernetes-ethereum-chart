@@ -40,7 +40,7 @@ spec:
         command: ["/bin/sh"]
         args:
         - "-c"
-        - "while [ 1 ]; do echo -e \"HTTP/1.1 200 OK\n\nenode://$(bootnode -writeaddress --nodekey=/etc/bootnode/node.key)@$(POD_IP):30301\" | nc -l -v -p 8080 || break; done;"
+        - "while [ 1 ]; do echo -e \"HTTP/1.1 200 OK\n\nenode://$(bootnode -writeaddress --nodekey=/etc/bootnode/node.key)@$(POD_IP):30301\" | nc -l -v -p 80 || break; done;"
         volumeMounts:
         - name: data
           mountPath: /etc/bootnode
@@ -50,7 +50,7 @@ spec:
             fieldRef:
               fieldPath: status.podIP
         ports:
-        - containerPort: 8080
+        - containerPort: 80
       initContainers:
       - name: genkey
         image: {{ .Values.bootnode.image.repository }}:{{ .Values.bootnode.image.tag }}

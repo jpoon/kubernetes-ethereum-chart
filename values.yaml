@@ -5,16 +5,10 @@
 imagePullPolicy: IfNotPresent
 
 bootnode:
-  replicaCount: 2
-  image:
-    repository: ethereum/client-go
-    tag: alltools-release-1.7
-
-bootnodeRegistrar:
   replicaCount: 1
   image:
-    repository: jpoon/bootnode-registrar
-    tag: v1.0.0
+    repository: ethereum/client-go
+    tag: alltools-v1.7.3
 
 ethstats:
   replicaCount: 1
@@ -28,7 +22,7 @@ ethstats:
 geth:
   image:
     repository: ethereum/client-go
-    tag: v1.7.2
+    tag: v1.7.3
   tx:
     # transaction nodes
     replicaCount: 2

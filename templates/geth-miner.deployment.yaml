@@ -84,27 +84,10 @@ spec:
         args:
         - "-c"
         - |-
-          apk add --no-cache curl; 
-          CNT=0;
-          echo "retreiving bootnodes from $BOOTNODE_REGISTRAR_SVC"
-          while [ $CNT -le 90 ] 
-          do
-            curl -m 5 -s $BOOTNODE_REGISTRAR_SVC | xargs echo -n >> /geth/bootnodes;
-            if [ -s /geth/bootnodes ] 
-            then
-              cat /geth/bootnodes;
-              exit 0;
-            fi;
-
-            echo "no bootnodes found. retrying $CNT..."; 
-            sleep 2 || break;
-            CNT=$((CNT+1));
-          done;
-          echo "WARNING. unable to find bootnodes. continuing but geth may not be able to find any peers.";
-          exit 0;
+{{ .Files.Get "scripts/get-bootnode.sh" | indent 10 }}
         env:
-        - name: BOOTNODE_REGISTRAR_SVC
-          value: {{ template "ethereum.fullname" . }}-bootnode-registrar-service.{{ .Release.Namespace }}
+        - name: BOOTNODE_SVC
+          value: {{ template "ethereum.fullname" . }}-bootnode-service.{{ .Release.Namespace }}
         volumeMounts:
         - name: data
           mountPath: /geth
