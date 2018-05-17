@@ -11,7 +11,7 @@ $ helm install --name ethereum kubernetes-ethereum-chart
 
 ## Introduction
 
-This chart bootstraps a private [Ethereum](https://www.ethereum.org/) network on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager. This chart will provide DNS Services and can be deployed in multiple configuration to support various scenarios listed below:
+This chart bootstraps a private [Ethereum](https://www.ethereum.org/) network on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager. For more information, https://www.microsoft.com/developerblog/2018/02/09/using-helm-deploy-blockchain-kubernetes/.
 
 ## Prerequisites
 
